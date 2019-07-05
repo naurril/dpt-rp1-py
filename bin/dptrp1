@@ -30,6 +30,10 @@ def do_list_folders(d, *remote_paths):
 def do_upload(d, local_path, remote_path=''):
     if not remote_path:
         remote_path = 'Document/' + os.path.basename(local_path)
+    
+    if os.path.basename(remote_path) == '':
+        remote_path += os.path.basename(local_path)        
+
     with open(local_path, 'rb') as fh:
         d.upload(fh, remote_path)
 
@@ -88,6 +92,10 @@ def do_delete_wifi(d):
 def do_register(d):
     d.register()
 
+def read_ip(f):
+    with open(f,"r") as f:
+        return f.readlines()[0].strip()
+
 if __name__ == "__main__":
 
     dpapp = "Sony Corporation/Digital Paper App"
@@ -100,7 +108,7 @@ if __name__ == "__main__":
     dpapp = Path.home() / dpapp
     deviceid = str(dpapp / "deviceid.dat")
     privatekey = str(dpapp / "privatekey.dat")
-
+    deviceip = str(dpapp / "deviceip.txt")
     commands = {
         "screenshot": do_screenshot,
         "list-documents" : do_list_documents,
@@ -131,6 +139,7 @@ if __name__ == "__main__":
                 default = privatekey,
                 required = not os.path.isfile(privatekey))
         p.add_argument('--addr', 
+                default = read_ip(deviceip),
                 help = "Hostname or IP address of the device")
         p.add_argument('command', 
                 help = 'Command to run', 
